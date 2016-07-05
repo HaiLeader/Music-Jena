@@ -1,68 +1,104 @@
 package vn.brine.haileader.musicjena;
 
-import android.app.ListActivity;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.ArrayAdapter;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class MainActivity extends ListActivity {
+import vn.brine.haileader.musicjena.asynctasks.SearchAllMovieType;
+import vn.brine.haileader.musicjena.utils.Config;
+import vn.brine.haileader.musicjena.utils.DataAssistant;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, SearchAllMovieType.OnTaskCompleted{
 
     public static final String TAG = MainActivity.class.getName();
-    ArrayAdapter<String> adapter;
+
+    private EditText mSearchText;
+    private Button mTypeMovieButton;
+    private ArrayList<String> mArrayListKeyword;
+    private ArrayList<String> mArrayListType;
+    private ArrayList<String> mArrayListMovieType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-        adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1);
-        setListAdapter(adapter);
-        new RequestTask().execute();
+        validIdLayout();
+
+        mTypeMovieButton.setOnClickListener(this);
+
+        mArrayListKeyword = new ArrayList<String>();
+        mArrayListMovieType = new ArrayList<String>();
+        mArrayListType = new ArrayList<String>();
+
+        getAllMovieType();
     }
 
+    private void validIdLayout() {
+        mSearchText = (EditText) findViewById(R.id.searchText);
+        mTypeMovieButton = (Button) findViewById(R.id.allTypeMovieButton);
+    }
 
-    private class RequestTask extends AsyncTask<Void, Void, ResultSet> {
-
-        @Override
-        protected ResultSet doInBackground(Void... params) {
-            String queryString = "" +
-                    "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
-                    "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-                    "SELECT DISTINCT * WHERE {\n" +
-                    "?s a owl:Class.\n" +
-                    "?s rdfs:label ?label\n" +
-                    "FILTER ( lang(?label) = \"en\" )\n" +
-                    "} ORDER BY ?label LIMIT 1000\n";
-
-//            String queryString =
-//                    "SELECT ?resource WHERE { ?resource movie:filmid ?uri . ?resource dc:title \"Forrest Gump\" . }";
-            Query query = QueryFactory.create(queryString);
-            QueryExecution qexec = QueryExecutionFactory.createServiceRequest("http://dbpedia.org/sparql", query);
-            ResultSet results = qexec.execSelect();
-            return results;
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.allTypeMovieButton:
+                String textSearch = mSearchText.getText().toString();
+                analyzeInputData(textSearch);
+                break;
         }
+    }
 
-        @Override
-        protected void onPostExecute(ResultSet resultSet) {
-            if(resultSet != null){
-                while (resultSet.hasNext()) {
-                    QuerySolution solution = resultSet.nextSolution();
-                    String label = solution.getLiteral("label").getString();
-                    if(label != null)
-                        adapter.add(label);
+    @Override
+    public void onAsyncTaskCompleted(ArrayList<String> arrayList) {
+        this.mArrayListMovieType = arrayList;
+    }
+
+    private void analyzeInputData(String textSearch){
+        if(textSearch == null) return;
+        splitDataToArrayKey(textSearch);
+        expandSearchKeywordType();
+    }
+
+    private void splitDataToArrayKey(String textSearch){
+        mArrayListKeyword.clear();
+        mArrayListKeyword = DataAssistant.splitTextSearchToPhrase(textSearch);
+    }
+
+    private void expandSearchKeywordType(){
+        if(mArrayListMovieType.isEmpty()){
+            getAllMovieType();
+        }
+        getMovieTypeFromTextSearch();
+    }
+
+    private void getAllMovieType(){
+        new SearchAllMovieType(this).execute();
+    }
+
+    private void getMovieTypeFromTextSearch(){
+        mArrayListType.clear();
+        if(mArrayListKeyword.isEmpty()) return;
+
+        for(String movieType : mArrayListMovieType){
+            for(String keyword : mArrayListKeyword){
+                if(isStopWord(keyword)) continue;
+                if(movieType.contains(keyword)){
+                    mArrayListType.add(movieType + keyword);
                 }
-            }else{
-                Log.d("FUCK", "NULL FUCK");
             }
         }
+    }
+
+    private boolean isStopWord(String word) {
+        List<String> listStopWord = Arrays.asList(Config.STOP_WORD);
+        if (listStopWord.contains(word)) return true;
+        return false;
     }
 }
