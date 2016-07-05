@@ -1,6 +1,8 @@
 package vn.brine.haileader.musicjena.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by HaiLeader on 7/5/2016.
@@ -25,5 +27,16 @@ public class DataAssistant {
             }
         }
         return mListKeyWord;
+    }
+
+    public static boolean isStopWord(String word) {
+        List<String> listStopWord = Arrays.asList(Config.STOP_WORD);
+        if (listStopWord.contains(word)) return true;
+        return false;
+    }
+
+    public static String replaceUnderline(String localName){
+        String result = localName.replace("_", " ");
+        return result;
     }
 }

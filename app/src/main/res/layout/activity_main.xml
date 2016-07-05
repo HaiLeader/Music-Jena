@@ -22,4 +22,16 @@
         android:layout_height="wrap_content"
         android:text="Xu ly du lieu" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search Accurate"
+        android:onClick="searchAccurate"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search Expand"
+        android:onClick="searchExpand"/>
+
 </LinearLayout>
