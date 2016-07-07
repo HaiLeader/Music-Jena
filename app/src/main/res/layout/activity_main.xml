@@ -17,21 +17,10 @@
         android:inputType="text"/>
 
     <Button
-        android:id="@+id/allTypeMovieButton"
+        android:id="@+id/searchAll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Xu ly du lieu" />
+        android:text="Search All" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search Accurate"
-        android:onClick="searchAccurate"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search Expand"
-        android:onClick="searchExpand"/>
 
 </LinearLayout>

@@ -12,21 +12,21 @@ import com.hp.hpl.jena.query.ResultSet;
 import vn.brine.haileader.musicjena.utils.Config;
 
 /**
- * Created by HaiLeader on 7/5/2016.
+ * Created by HaiLeader on 7/7/2016.
  */
-public class SearchData extends AsyncTask<String, Void, ResultSet> {
+public class SearchDataWiki extends AsyncTask<String, Void, ResultSet> {
 
-    public final static String TAG = "SearchData";
-    private onTaskCompleted mOnTaskCompleted;
+    public final static String TAG = "SearchDataFreeBase";
+    private OnTaskCompleted mOnTaskCompleted;
     private int mTypeSearch;
 
-    public SearchData(onTaskCompleted onTaskCompleted, int typeSearch){
+    public SearchDataWiki(OnTaskCompleted onTaskCompleted, int typeSearch){
         this.mOnTaskCompleted = onTaskCompleted;
         this.mTypeSearch = typeSearch;
     }
 
-    public interface onTaskCompleted{
-        void onAsyncTaskCompleted(ResultSet resultSet, int typeSearch);
+    public interface OnTaskCompleted{
+        void onAsyncTaskCompletedWiki(ResultSet resultSet, int typeSearch);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class SearchData extends AsyncTask<String, Void, ResultSet> {
         String queryString = params[0];
         Log.d(TAG, queryString);
         Query query = QueryFactory.create(queryString);
-        QueryExecution queryExecution = QueryExecutionFactory.createServiceRequest(Config.LINKEDMDB_ENDPOINT, query);
+        QueryExecution queryExecution = QueryExecutionFactory.createServiceRequest(Config.WIKIDATA_ENDPOINT, query);
         ResultSet resultSet = queryExecution.execSelect();
         queryExecution.close();
         return resultSet;
@@ -43,6 +43,6 @@ public class SearchData extends AsyncTask<String, Void, ResultSet> {
     @Override
     protected void onPostExecute(ResultSet resultSet) {
         super.onPostExecute(resultSet);
-        mOnTaskCompleted.onAsyncTaskCompleted(resultSet, mTypeSearch);
+        mOnTaskCompleted.onAsyncTaskCompletedWiki(resultSet, mTypeSearch);
     }
 }

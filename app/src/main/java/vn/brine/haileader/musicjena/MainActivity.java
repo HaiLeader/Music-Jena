@@ -13,24 +13,26 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import vn.brine.haileader.musicjena.asynctasks.SearchData;
+import vn.brine.haileader.musicjena.asynctasks.SearchDataLMD;
 import vn.brine.haileader.musicjena.utils.Config;
 import vn.brine.haileader.musicjena.utils.DataAssistant;
 
 public class MainActivity extends AppCompatActivity
-        implements View.OnClickListener, SearchData.onTaskCompleted{
-
+        implements View.OnClickListener, SearchDataLMD.OnTaskCompleted {
     public static final String TAG = MainActivity.class.getName();
-    public static final int SEARCH_ACCURATE_DATA = 1;
-    public static final int SEARCH_EXPAND_DATA = 2;
-    public static final int SEARCH_ALL_MOVIETYPE = 3;
+
+    public static final int SEARCH_ACCURATE_DATA_LMD = 1;
+    public static final int SEARCH_EXPAND_DATA_LMD = 2;
+    public static final int SEARCH_ALL_MOVIETYPE_LMD = 3;
+    public static final int SEARCH_TYPE_LMD = 4;
 
     private EditText mSearchText;
-    private Button mTypeMovieButton;
-    private ArrayList<String> mArrayListKeyword;
-    private ArrayList<String> mArrayListType;
-    private ArrayList<String> mArrayListMovieType;
+    private Button mSearchAllButton;
+    private List<String> mListKeyword;
+    private List<String> mListMovieType;
+    private List<String> mListAllMovieType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,70 +41,131 @@ public class MainActivity extends AppCompatActivity
 
         validIdLayout();
 
-        mTypeMovieButton.setOnClickListener(this);
+        mSearchAllButton.setOnClickListener(this);
 
-        mArrayListKeyword = new ArrayList<String>();
-        mArrayListMovieType = new ArrayList<String>();
-        mArrayListType = new ArrayList<String>();
+        mListKeyword = new ArrayList<String>();
+        mListMovieType = new ArrayList<String>();
+        mListAllMovieType = new ArrayList<String>();
 
         getAllMovieType();
     }
 
     private void validIdLayout() {
         mSearchText = (EditText) findViewById(R.id.searchText);
-        mTypeMovieButton = (Button) findViewById(R.id.allTypeMovieButton);
+        mSearchAllButton = (Button) findViewById(R.id.searchAll);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.allTypeMovieButton:
+        switch (v.getId()) {
+            case R.id.searchAll:
                 String textSearch = mSearchText.getText().toString();
                 analyzeInputData(textSearch);
+                searchAll();
                 break;
+
         }
     }
 
     @Override
-    public void onAsyncTaskCompleted(ResultSet resultSet, int typeSearch) {
-        if(resultSet == null) return;
+    public void onAsyncTaskCompletedLMD(ResultSet resultSet, int typeSearch) {
+        if (resultSet == null) return;
 
-        switch (typeSearch){
-            case SEARCH_ACCURATE_DATA:
-                while (resultSet.hasNext()){
+        switch (typeSearch) {
+            case SEARCH_ACCURATE_DATA_LMD:
+                while (resultSet.hasNext()) {
                     QuerySolution binding = resultSet.nextSolution();
                     Resource url = (Resource) binding.get("url");
-                    if(url.getURI().contains("freebase")){
+                    if (url.getURI().contains("freebase")) {
                         Log.d("SearchAccurate", "Xu ly");
+                        if (!mListMovieType.isEmpty()) {
+                            for (String movieType : mListMovieType) {
+                                getInfoFromType(url.getURI(), movieType);
+                            }
+                        }
+                        searchDataFreeBase(url.getURI());
                     }
                 }
                 break;
-            case SEARCH_EXPAND_DATA:
-                while (resultSet.hasNext()){
+            case SEARCH_EXPAND_DATA_LMD:
+                while (resultSet.hasNext()) {
                     QuerySolution binding = resultSet.nextSolution();
                     Resource url = (Resource) binding.get("url");
-                    if(url.getURI().contains("freebase")){
+                    if (url.getURI().contains("freebase")) {
                         Log.d("SearchExpand", "Xu ly");
+                        searchDataFreeBase(url.getURI());
                     }
                 }
                 break;
-            case SEARCH_ALL_MOVIETYPE:
-                while (resultSet.hasNext()){
+            case SEARCH_ALL_MOVIETYPE_LMD:
+                while (resultSet.hasNext()) {
                     QuerySolution binding = resultSet.nextSolution();
                     Resource subject = (Resource) binding.get("o");
                     String localName = subject.getLocalName();
-                    if(localName != null){
-                        localName = DataAssistant.replaceUnderline(localName);
-                        mArrayListMovieType.add(localName);
+                    if (localName != null) {
+                        localName = DataAssistant.replaceUnderlineToSpace(localName);
+                        mListAllMovieType.add(localName);
                     }
                 }
-                Toast.makeText(getApplicationContext(), mArrayListMovieType.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), mListAllMovieType.toString(), Toast.LENGTH_LONG).show();
+                break;
+            case SEARCH_TYPE_LMD:
                 break;
         }
     }
 
-    public void searchAccurate(View v){
-        String keyword = "titanic";
+    private void analyzeInputData(String textSearch) {
+        if (textSearch.equals("")) return;
+        splitDataToArrayKey(textSearch);
+        expandSearchKeywordType();
+    }
+
+    private void splitDataToArrayKey(String textSearch) {
+        mListKeyword.clear();
+        mListKeyword = DataAssistant.splitTextSearchToPhrase(textSearch);
+    }
+
+    private void expandSearchKeywordType() {
+        if (mListAllMovieType.isEmpty()) {
+            getAllMovieType();
+        }
+        getMovieTypeFromTextSearch();
+    }
+
+    private void getAllMovieType() {
+        String queryString =
+                Config.PREFIX_LINKEDMDB +
+                        "SELECT distinct ?o WHERE {?s rdf:type ?o}";
+        new SearchDataLMD(this, SEARCH_ALL_MOVIETYPE_LMD).execute(queryString);
+    }
+
+    private void getMovieTypeFromTextSearch() {
+        mListMovieType.clear();
+        if (mListKeyword.isEmpty()) return;
+
+        for (String movieType : mListAllMovieType) {
+            for (String keyword : mListKeyword) {
+                if (DataAssistant.isStopWord(keyword)) continue;
+                if (movieType.contains(keyword)) {
+                    String rdfMovieType = "movie:" + DataAssistant.replaceSpaceToUnderline(keyword);
+                    if (!mListMovieType.contains(rdfMovieType))
+                        mListMovieType.add(rdfMovieType);
+                }
+            }
+        }
+        Log.d("mArrayListType", mListMovieType.toString());
+    }
+
+    private void searchAll() {
+        if (mListKeyword.isEmpty()) return;
+        for (String keyword : mListKeyword) {
+            if (DataAssistant.isStopWord(keyword)) continue;
+            searchAccurate(keyword);
+            searchExpand(keyword);
+        }
+    }
+
+    private void searchAccurate(String keyword) {
         String queryString = Config.PREFIX_LINKEDMDB +
                 "SELECT DISTINCT * WHERE " +
                 "{" +
@@ -118,54 +181,65 @@ public class MainActivity extends AppCompatActivity
                 "}. " +
                 "?s foaf:page ?url.?s rdfs:label ?label" +
                 "}";
-        new SearchData(this, SEARCH_ACCURATE_DATA).execute(queryString);
+        new SearchDataLMD(this, SEARCH_ACCURATE_DATA_LMD).execute(queryString);
     }
 
-    public void searchExpand(View v){
-        String keyword = "titanic";
+    private void searchExpand(String keyword) {
         String queryString = Config.PREFIX_LINKEDMDB +
                 "SELECT DISTINCT * WHERE " +
                 "{ ?s rdfs:label ?o . FILTER regex(?o, " + "\"" + keyword + "\"" + " ,'i'). " +
                 "?s foaf:page ?url} limit 16";
-        new SearchData(this, SEARCH_EXPAND_DATA).execute(queryString);
+        new SearchDataLMD(this, SEARCH_EXPAND_DATA_LMD).execute(queryString);
     }
 
-    private void analyzeInputData(String textSearch){
-        if(textSearch == null) return;
-        splitDataToArrayKey(textSearch);
-        expandSearchKeywordType();
+    private void getInfoFromType(String uriKey, String movieType) {
+        movieType = changeTextType(uriKey, movieType);
+        if (movieType == null) return;
+        String queryString = Config.PREFIX_LINKEDMDB +
+                "SELECT * WHERE {" +
+                "{<" + uriKey + "> " + movieType + " ?s}" +
+                "UNION{?s " + movieType + "<" + uriKey + "> }. " +
+                "?s foaf:page ?url}";
+        new SearchDataLMD(this, SEARCH_TYPE_LMD).execute(queryString);
     }
 
-    private void splitDataToArrayKey(String textSearch){
-        mArrayListKeyword.clear();
-        mArrayListKeyword = DataAssistant.splitTextSearchToPhrase(textSearch);
-    }
-
-    private void expandSearchKeywordType(){
-        if(mArrayListMovieType.isEmpty()){
-            getAllMovieType();
+    private String changeTextType(String uriKey, String type) {
+        if (type.equals("movie:film")) {
+            if (uriKey == null) return null;
+            String endUri = uriKey.replace("http://data.linkedmdb.org/resource/", "");
+            String[] splitType = endUri.split("/");
+            type = splitType[0];
+            Log.d("MovieType", type);
         }
-        getMovieTypeFromTextSearch();
-    }
 
-    private void getAllMovieType(){
-        String queryString =
-                Config.PREFIX_LINKEDMDB +
-                "SELECT distinct ?o WHERE {?s rdf:type ?o}";
-        new SearchData(this, SEARCH_ALL_MOVIETYPE).execute(queryString);
-    }
-
-    private void getMovieTypeFromTextSearch(){
-        mArrayListType.clear();
-        if(mArrayListKeyword.isEmpty()) return;
-
-        for(String movieType : mArrayListMovieType){
-            for(String keyword : mArrayListKeyword){
-                if(DataAssistant.isStopWord(keyword)) continue;
-                if(movieType.contains(keyword)){
-                    mArrayListType.add(movieType + keyword);
-                }
-            }
+        if (type.equals("movie:content_rating")) {
+            type = "movie:rating";
         }
+        if (type.equals("movie:country")) {
+            type = "oddlinker:link_source";
+        }
+        if (type.equals("movie:film_costume_designer")) {
+            type = "movie:costume_designer";
+        }
+        if (type.equals("movie:film_crew_gig")) {
+            type = "movie:film_crew_gig_film";
+        }
+        if (type.equals("movie:film_genre")) {
+            type = "movie:genre";
+        }
+        if (type.equals("movie:film_crew_gig_film_job")) {
+            type = "movie:film_job";
+        }
+        if (type.equals("movie:film_location")) {
+            type = "movie:featured_film_location";
+        }
+        if (type.equals("movie:special_film_performance_type")) {
+            type = "movie:performance_special_performance_type";
+        }
+        return type;
+    }
+
+    private void searchDataFreeBase(String uri){
+
     }
 }

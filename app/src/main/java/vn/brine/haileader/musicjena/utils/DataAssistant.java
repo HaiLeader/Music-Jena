@@ -35,8 +35,13 @@ public class DataAssistant {
         return false;
     }
 
-    public static String replaceUnderline(String localName){
+    public static String replaceUnderlineToSpace(String localName){
         String result = localName.replace("_", " ");
+        return result;
+    }
+
+    public static String replaceSpaceToUnderline(String localName){
+        String result = localName.replace(" ", "_");
         return result;
     }
 }

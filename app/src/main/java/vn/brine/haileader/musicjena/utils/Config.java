@@ -6,6 +6,7 @@ package vn.brine.haileader.musicjena.utils;
 public class Config {
     public static final String DBPEDIA_ENDPOINT = "http://dbpedia.org/sparql";
     public static final String LINKEDMDB_ENDPOINT = "http://www.linkedmdb.org/sparql";
+    public static final String WIKIDATA_ENDPOINT = "http://query.wikidata.org";
     public static final String PREFIX_LINKEDMDB =
             "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
                     "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
