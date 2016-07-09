@@ -14,24 +14,21 @@ import com.hp.hpl.jena.query.ResultSet;
 import vn.brine.haileader.musicjena.utils.Config;
 
 /**
- * Created by HaiLeader on 7/5/2016.
+ * Created by HaiLeader on 7/7/2016.
  */
-public class SearchDataLMD extends AsyncTask<String, Void, ResultSet> {
+public class SearchDataDbpedia extends AsyncTask<String, Void, ResultSet> {
 
-    public final static String TAG = "SearchData";
+    public final static String TAG = "SearchDataDbPedia";
     private OnTaskCompleted mOnTaskCompleted;
     private int mTypeSearch;
     private Context mContext;
     private static ProgressDialog sProgressDialog;
 
-    public SearchDataLMD(Context context, OnTaskCompleted onTaskCompleted, int typeSearch){
+    public SearchDataDbpedia(Context context, OnTaskCompleted onTaskCompleted, int typeSearch){
         this.mContext = context;
         this.mOnTaskCompleted = onTaskCompleted;
         this.mTypeSearch = typeSearch;
-    }
-
-    public interface OnTaskCompleted {
-        void onAsyncTaskCompletedLMD(ResultSet resultSet, int typeSearch);
+        sProgressDialog = new ProgressDialog(mContext);
     }
 
     @Override
@@ -46,12 +43,16 @@ public class SearchDataLMD extends AsyncTask<String, Void, ResultSet> {
         }
     }
 
+    public interface OnTaskCompleted{
+        void onAsyncTaskCompletedDbpedia(ResultSet resultSet, int typeSearch);
+    }
+
     @Override
     protected ResultSet doInBackground(String... params) {
         String queryString = params[0];
         Log.d(TAG, queryString);
         Query query = QueryFactory.create(queryString);
-        QueryExecution queryExecution = QueryExecutionFactory.createServiceRequest(Config.LINKEDMDB_ENDPOINT, query);
+        QueryExecution queryExecution = QueryExecutionFactory.createServiceRequest(Config.DBPEDIA_ENDPOINT, query);
         ResultSet resultSet = queryExecution.execSelect();
         queryExecution.close();
         return resultSet;
@@ -63,6 +64,6 @@ public class SearchDataLMD extends AsyncTask<String, Void, ResultSet> {
         if(sProgressDialog.isShowing()){
             sProgressDialog.dismiss();
         }
-        mOnTaskCompleted.onAsyncTaskCompletedLMD(resultSet, mTypeSearch);
+        mOnTaskCompleted.onAsyncTaskCompletedDbpedia(resultSet, mTypeSearch);
     }
 }

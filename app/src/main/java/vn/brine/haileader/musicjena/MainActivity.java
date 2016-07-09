@@ -25,8 +25,8 @@ public class MainActivity extends AppCompatActivity
 
     public static final int SEARCH_ACCURATE_DATA_LMD = 1;
     public static final int SEARCH_EXPAND_DATA_LMD = 2;
-    public static final int SEARCH_ALL_MOVIETYPE_LMD = 3;
-    public static final int SEARCH_TYPE_LMD = 4;
+    public static final int SEARCH_TYPE_LMD = 3;
+    public static final int SEARCH_TEST = 4;
 
     private EditText mSearchText;
     private Button mSearchAllButton;
@@ -45,9 +45,8 @@ public class MainActivity extends AppCompatActivity
 
         mListKeyword = new ArrayList<String>();
         mListMovieType = new ArrayList<String>();
-        mListAllMovieType = new ArrayList<String>();
-
-        getAllMovieType();
+        mListAllMovieType = getAllMovieType();
+        Toast.makeText(getApplicationContext(), mListAllMovieType.toString(), Toast.LENGTH_LONG).show();
     }
 
     private void validIdLayout() {
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity
                 analyzeInputData(textSearch);
                 searchAll();
                 break;
-
         }
     }
 
@@ -77,7 +75,7 @@ public class MainActivity extends AppCompatActivity
                     QuerySolution binding = resultSet.nextSolution();
                     Resource url = (Resource) binding.get("url");
                     if (url.getURI().contains("freebase")) {
-                        Log.d("SearchAccurate", "Xu ly");
+                        showLog("searchAccurateKeyword", "Xu ly");
                         if (!mListMovieType.isEmpty()) {
                             for (String movieType : mListMovieType) {
                                 getInfoFromType(url.getURI(), movieType);
@@ -92,24 +90,21 @@ public class MainActivity extends AppCompatActivity
                     QuerySolution binding = resultSet.nextSolution();
                     Resource url = (Resource) binding.get("url");
                     if (url.getURI().contains("freebase")) {
-                        Log.d("SearchExpand", "Xu ly");
+                        showLog("SearchExpand", "Xu ly : " + url.getLocalName());
                         searchDataFreeBase(url.getURI());
                     }
                 }
                 break;
-            case SEARCH_ALL_MOVIETYPE_LMD:
+            case SEARCH_TYPE_LMD:
+                break;
+            case SEARCH_TEST:
                 while (resultSet.hasNext()) {
                     QuerySolution binding = resultSet.nextSolution();
-                    Resource subject = (Resource) binding.get("o");
-                    String localName = subject.getLocalName();
-                    if (localName != null) {
-                        localName = DataAssistant.replaceUnderlineToSpace(localName);
-                        mListAllMovieType.add(localName);
+                    Resource url = (Resource) binding.get("page");
+                    if (url.getURI().contains("dbpedia")) {
+                        showLog("URITEST", url.getURI());
                     }
                 }
-                Toast.makeText(getApplicationContext(), mListAllMovieType.toString(), Toast.LENGTH_LONG).show();
-                break;
-            case SEARCH_TYPE_LMD:
                 break;
         }
     }
@@ -123,6 +118,7 @@ public class MainActivity extends AppCompatActivity
     private void splitDataToArrayKey(String textSearch) {
         mListKeyword.clear();
         mListKeyword = DataAssistant.splitTextSearchToPhrase(textSearch);
+        showLog("mListKeyword", mListKeyword.toString());
     }
 
     private void expandSearchKeywordType() {
@@ -132,11 +128,8 @@ public class MainActivity extends AppCompatActivity
         getMovieTypeFromTextSearch();
     }
 
-    private void getAllMovieType() {
-        String queryString =
-                Config.PREFIX_LINKEDMDB +
-                        "SELECT distinct ?o WHERE {?s rdf:type ?o}";
-        new SearchDataLMD(this, SEARCH_ALL_MOVIETYPE_LMD).execute(queryString);
+    private List<String> getAllMovieType() {
+        return DataAssistant.convertStringArrayToList();
     }
 
     private void getMovieTypeFromTextSearch() {
@@ -153,7 +146,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-        Log.d("mArrayListType", mListMovieType.toString());
+        showLog("mListMovieType", mListMovieType.toString());
     }
 
     private void searchAll() {
@@ -181,7 +174,7 @@ public class MainActivity extends AppCompatActivity
                 "}. " +
                 "?s foaf:page ?url.?s rdfs:label ?label" +
                 "}";
-        new SearchDataLMD(this, SEARCH_ACCURATE_DATA_LMD).execute(queryString);
+        new SearchDataLMD(this, this, SEARCH_ACCURATE_DATA_LMD).execute(queryString);
     }
 
     private void searchExpand(String keyword) {
@@ -189,57 +182,32 @@ public class MainActivity extends AppCompatActivity
                 "SELECT DISTINCT * WHERE " +
                 "{ ?s rdfs:label ?o . FILTER regex(?o, " + "\"" + keyword + "\"" + " ,'i'). " +
                 "?s foaf:page ?url} limit 16";
-        new SearchDataLMD(this, SEARCH_EXPAND_DATA_LMD).execute(queryString);
+        new SearchDataLMD(this, this, SEARCH_EXPAND_DATA_LMD).execute(queryString);
     }
 
     private void getInfoFromType(String uriKey, String movieType) {
-        movieType = changeTextType(uriKey, movieType);
+        movieType = DataAssistant.changeTextType(uriKey, movieType);
         if (movieType == null) return;
         String queryString = Config.PREFIX_LINKEDMDB +
                 "SELECT * WHERE {" +
                 "{<" + uriKey + "> " + movieType + " ?s}" +
                 "UNION{?s " + movieType + "<" + uriKey + "> }. " +
                 "?s foaf:page ?url}";
-        new SearchDataLMD(this, SEARCH_TYPE_LMD).execute(queryString);
-    }
-
-    private String changeTextType(String uriKey, String type) {
-        if (type.equals("movie:film")) {
-            if (uriKey == null) return null;
-            String endUri = uriKey.replace("http://data.linkedmdb.org/resource/", "");
-            String[] splitType = endUri.split("/");
-            type = splitType[0];
-            Log.d("MovieType", type);
-        }
-
-        if (type.equals("movie:content_rating")) {
-            type = "movie:rating";
-        }
-        if (type.equals("movie:country")) {
-            type = "oddlinker:link_source";
-        }
-        if (type.equals("movie:film_costume_designer")) {
-            type = "movie:costume_designer";
-        }
-        if (type.equals("movie:film_crew_gig")) {
-            type = "movie:film_crew_gig_film";
-        }
-        if (type.equals("movie:film_genre")) {
-            type = "movie:genre";
-        }
-        if (type.equals("movie:film_crew_gig_film_job")) {
-            type = "movie:film_job";
-        }
-        if (type.equals("movie:film_location")) {
-            type = "movie:featured_film_location";
-        }
-        if (type.equals("movie:special_film_performance_type")) {
-            type = "movie:performance_special_performance_type";
-        }
-        return type;
+        new SearchDataLMD(this, this, SEARCH_TYPE_LMD).execute(queryString);
     }
 
     private void searchDataFreeBase(String uri){
 
+    }
+
+    public void testSearch(View v){
+        String key = "http://data.linkedmdb.org/resource/film/3951";
+        String queryString = Config.PREFIX_LINKEDMDB +
+                "SELECT * WHERE{<"+key+"> owl:sameAs ?page }";
+        new SearchDataLMD(this, this, SEARCH_TEST).execute(queryString);
+    }
+
+    private void showLog(String tag, String message){
+        Log.d(tag, message);
     }
 }

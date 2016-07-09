@@ -1,5 +1,7 @@
 package vn.brine.haileader.musicjena.asynctasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -19,14 +21,29 @@ public class SearchDataWiki extends AsyncTask<String, Void, ResultSet> {
     public final static String TAG = "SearchDataFreeBase";
     private OnTaskCompleted mOnTaskCompleted;
     private int mTypeSearch;
+    private Context mContext;
+    private static ProgressDialog sProgressDialog;
 
-    public SearchDataWiki(OnTaskCompleted onTaskCompleted, int typeSearch){
+    public SearchDataWiki(Context context, OnTaskCompleted onTaskCompleted, int typeSearch){
+        this.mContext = context;
         this.mOnTaskCompleted = onTaskCompleted;
         this.mTypeSearch = typeSearch;
     }
 
     public interface OnTaskCompleted{
         void onAsyncTaskCompletedWiki(ResultSet resultSet, int typeSearch);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        if(sProgressDialog == null){
+            sProgressDialog = new ProgressDialog(mContext);
+        }
+        if(!sProgressDialog.isShowing()){
+            sProgressDialog.setMessage("Loading...");
+            sProgressDialog.show();
+        }
     }
 
     @Override
@@ -43,6 +60,9 @@ public class SearchDataWiki extends AsyncTask<String, Void, ResultSet> {
     @Override
     protected void onPostExecute(ResultSet resultSet) {
         super.onPostExecute(resultSet);
+        if(sProgressDialog.isShowing()){
+            sProgressDialog.dismiss();
+        }
         mOnTaskCompleted.onAsyncTaskCompletedWiki(resultSet, mTypeSearch);
     }
 }
