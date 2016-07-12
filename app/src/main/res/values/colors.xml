@@ -6,4 +6,7 @@
     <color name="windowBackground">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#C8E6C9</color>
+
+    <!--Home Fragment-->
+    <color name="textLabel">#66BB6A</color>
 </resources>

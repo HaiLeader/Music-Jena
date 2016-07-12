@@ -14,7 +14,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import vn.brine.haileader.musicjena.utils.Config;
 
 /**
- * Created by HaiLeader on 7/7/2016.
+ * Created by HaiLeader on 7/12/2016.
  */
 public class SearchDataDbpedia extends AsyncTask<String, Void, ResultSet> {
 
@@ -67,3 +67,4 @@ public class SearchDataDbpedia extends AsyncTask<String, Void, ResultSet> {
         mOnTaskCompleted.onAsyncTaskCompletedDbpedia(resultSet, mTypeSearch);
     }
 }
+

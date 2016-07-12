@@ -5,22 +5,74 @@
     android:orientation="vertical"
     tools:context="vn.brine.haileader.musicjena.fragments.HomeFragment">
 
-    <EditText
-    android:id="@+id/searchText"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:inputType="text"/>
+    <LinearLayout
+        android:id="@+id/linear_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_search"
+            android:layout_gravity="center" />
+        <EditText
+            android:id="@+id/searchText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search..." />
+    </LinearLayout>
 
     <Button
-    android:id="@+id/searchAll"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Search All" />
+        android:id="@+id/searchAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search All" />
 
-    <Button
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Test Search"
-    android:onClick="testSearch"/>
+    <LinearLayout
+        android:id="@+id/linear_top_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_top_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/textLabel"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="#ffffff"
+            android:text="@string/top_result_label"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/top_result_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linear_recommend_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_recommend_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/textLabel"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="#ffffff"
+            android:text="@string/recommend_result_label"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recommend_result_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
 
 </LinearLayout>
