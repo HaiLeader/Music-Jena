@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.utils;
+package vn.brine.haileader.exploratorysearch.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

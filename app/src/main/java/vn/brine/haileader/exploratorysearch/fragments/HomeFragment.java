@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.fragments;
+package vn.brine.haileader.exploratorysearch.fragments;
 
 import android.app.Activity;
 import android.content.Context;
@@ -25,14 +25,14 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-import vn.brine.haileader.musicjena.R;
-import vn.brine.haileader.musicjena.adapters.MovieAdapter;
-import vn.brine.haileader.musicjena.asynctasks.SearchDataLMD;
-import vn.brine.haileader.musicjena.models.DividerItemDecoration;
-import vn.brine.haileader.musicjena.models.Movie;
-import vn.brine.haileader.musicjena.utils.Config;
-import vn.brine.haileader.musicjena.utils.DataAssistant;
-import vn.brine.haileader.musicjena.utils.QueryAssistant;
+import vn.brine.haileader.exploratorysearch.R;
+import vn.brine.haileader.exploratorysearch.adapters.MovieAdapter;
+import vn.brine.haileader.exploratorysearch.asynctasks.SearchDataLMD;
+import vn.brine.haileader.exploratorysearch.models.DividerItemDecoration;
+import vn.brine.haileader.exploratorysearch.models.Movie;
+import vn.brine.haileader.exploratorysearch.utils.Config;
+import vn.brine.haileader.exploratorysearch.utils.DataAssistant;
+import vn.brine.haileader.exploratorysearch.utils.QueryAssistant;
 
 public class HomeFragment extends Fragment
         implements View.OnClickListener, SearchDataLMD.OnTaskCompleted{

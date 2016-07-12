@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.adapters;
+package vn.brine.haileader.exploratorysearch.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,8 +10,8 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
-import vn.brine.haileader.musicjena.R;
-import vn.brine.haileader.musicjena.models.NavDrawerItem;
+import vn.brine.haileader.exploratorysearch.R;
+import vn.brine.haileader.exploratorysearch.models.NavDrawerItem;
 
 /**
  * Created by HaiLeader on 7/12/2016.

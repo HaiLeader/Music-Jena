@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.models;
+package vn.brine.haileader.exploratorysearch.models;
 
 import android.content.Context;
 import android.content.res.TypedArray;

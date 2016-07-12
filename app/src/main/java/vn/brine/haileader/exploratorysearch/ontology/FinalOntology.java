@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.ontology;
+package vn.brine.haileader.exploratorysearch.ontology;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;

@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.fragments;
+package vn.brine.haileader.exploratorysearch.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,9 +17,9 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import vn.brine.haileader.musicjena.R;
-import vn.brine.haileader.musicjena.adapters.NavigationDrawerAdapter;
-import vn.brine.haileader.musicjena.models.NavDrawerItem;
+import vn.brine.haileader.exploratorysearch.R;
+import vn.brine.haileader.exploratorysearch.adapters.NavigationDrawerAdapter;
+import vn.brine.haileader.exploratorysearch.models.NavDrawerItem;
 
 public class FragmentDrawer extends Fragment {
 

@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.asynctasks;
+package vn.brine.haileader.exploratorysearch.asynctasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -11,24 +11,27 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 
-import vn.brine.haileader.musicjena.utils.Config;
+import vn.brine.haileader.exploratorysearch.utils.Config;
 
 /**
- * Created by HaiLeader on 7/12/2016.
+ * Created by HaiLeader on 7/5/2016.
  */
-public class SearchDataDbpedia extends AsyncTask<String, Void, ResultSet> {
+public class SearchDataLMD extends AsyncTask<String, Void, ResultSet> {
 
-    public final static String TAG = "SearchDataDbPedia";
+    public final static String TAG = "SearchData";
     private OnTaskCompleted mOnTaskCompleted;
     private int mTypeSearch;
     private Context mContext;
     private static ProgressDialog sProgressDialog;
 
-    public SearchDataDbpedia(Context context, OnTaskCompleted onTaskCompleted, int typeSearch){
+    public SearchDataLMD(Context context, OnTaskCompleted onTaskCompleted, int typeSearch){
         this.mContext = context;
         this.mOnTaskCompleted = onTaskCompleted;
         this.mTypeSearch = typeSearch;
-        sProgressDialog = new ProgressDialog(mContext);
+    }
+
+    public interface OnTaskCompleted {
+        void onAsyncTaskCompletedLMD(ResultSet resultSet, int typeSearch);
     }
 
     @Override
@@ -43,16 +46,12 @@ public class SearchDataDbpedia extends AsyncTask<String, Void, ResultSet> {
         }
     }
 
-    public interface OnTaskCompleted{
-        void onAsyncTaskCompletedDbpedia(ResultSet resultSet, int typeSearch);
-    }
-
     @Override
     protected ResultSet doInBackground(String... params) {
         String queryString = params[0];
         Log.d(TAG, queryString);
         Query query = QueryFactory.create(queryString);
-        QueryExecution queryExecution = QueryExecutionFactory.createServiceRequest(Config.DBPEDIA_ENDPOINT, query);
+        QueryExecution queryExecution = QueryExecutionFactory.createServiceRequest(Config.LINKEDMDB_ENDPOINT, query);
         ResultSet resultSet = queryExecution.execSelect();
         queryExecution.close();
         return resultSet;
@@ -64,7 +63,6 @@ public class SearchDataDbpedia extends AsyncTask<String, Void, ResultSet> {
         if(sProgressDialog.isShowing()){
             sProgressDialog.dismiss();
         }
-        mOnTaskCompleted.onAsyncTaskCompletedDbpedia(resultSet, mTypeSearch);
+        mOnTaskCompleted.onAsyncTaskCompletedLMD(resultSet, mTypeSearch);
     }
 }
-

@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena;
+package vn.brine.haileader.exploratorysearch;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,10 +11,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import vn.brine.haileader.musicjena.fragments.FavoriteFragment;
-import vn.brine.haileader.musicjena.fragments.FragmentDrawer;
-import vn.brine.haileader.musicjena.fragments.HomeFragment;
-import vn.brine.haileader.musicjena.fragments.SettingFragment;
+import vn.brine.haileader.exploratorysearch.fragments.FavoriteFragment;
+import vn.brine.haileader.exploratorysearch.fragments.FragmentDrawer;
+import vn.brine.haileader.exploratorysearch.fragments.HomeFragment;
+import vn.brine.haileader.exploratorysearch.fragments.SettingFragment;
 
 public class MainActivity extends AppCompatActivity
         implements FragmentDrawer.FragmentDrawerListener {

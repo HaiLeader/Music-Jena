@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.fragments;
+package vn.brine.haileader.exploratorysearch.fragments;
 
 
 import android.app.Activity;
@@ -8,12 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import vn.brine.haileader.musicjena.R;
+import vn.brine.haileader.exploratorysearch.R;
 
-public class FavoriteFragment extends Fragment {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class SettingFragment extends Fragment {
 
-
-    public FavoriteFragment() {
+    public SettingFragment() {
     }
 
     @Override
@@ -25,7 +27,7 @@ public class FavoriteFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_fravorite, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_setting, container, false);
         return rootView;
     }
 
@@ -38,5 +40,4 @@ public class FavoriteFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
     }
-
 }

@@ -1,4 +1,4 @@
-package vn.brine.haileader.musicjena.models;
+package vn.brine.haileader.exploratorysearch.models;
 
 /**
  * Created by HaiLeader on 7/12/2016.
