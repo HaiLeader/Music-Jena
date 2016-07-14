@@ -22,12 +22,13 @@ public class SearchDataLMD extends AsyncTask<String, Void, ResultSet> {
     private OnTaskCompleted mOnTaskCompleted;
     private int mTypeSearch;
     private Context mContext;
-    private static ProgressDialog sProgressDialog;
+    private ProgressDialog mProgressDialog;
 
     public SearchDataLMD(Context context, OnTaskCompleted onTaskCompleted, int typeSearch){
         this.mContext = context;
         this.mOnTaskCompleted = onTaskCompleted;
         this.mTypeSearch = typeSearch;
+        mProgressDialog = new ProgressDialog(mContext);
     }
 
     public interface OnTaskCompleted {
@@ -37,13 +38,8 @@ public class SearchDataLMD extends AsyncTask<String, Void, ResultSet> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if(sProgressDialog == null){
-            sProgressDialog = new ProgressDialog(mContext);
-        }
-        if(!sProgressDialog.isShowing()){
-            sProgressDialog.setMessage("Loading...");
-            sProgressDialog.show();
-        }
+        mProgressDialog.setMessage("Loading...");
+        mProgressDialog.show();
     }
 
     @Override
@@ -60,8 +56,8 @@ public class SearchDataLMD extends AsyncTask<String, Void, ResultSet> {
     @Override
     protected void onPostExecute(ResultSet resultSet) {
         super.onPostExecute(resultSet);
-        if(sProgressDialog.isShowing()){
-            sProgressDialog.dismiss();
+        if(mProgressDialog.isShowing()){
+            mProgressDialog.dismiss();
         }
         mOnTaskCompleted.onAsyncTaskCompletedLMD(resultSet, mTypeSearch);
     }

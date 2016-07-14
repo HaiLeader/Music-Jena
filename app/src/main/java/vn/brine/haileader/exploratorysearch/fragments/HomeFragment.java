@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.hp.hpl.jena.query.QuerySolution;
@@ -28,23 +29,25 @@ import java.util.List;
 import vn.brine.haileader.exploratorysearch.R;
 import vn.brine.haileader.exploratorysearch.adapters.MovieAdapter;
 import vn.brine.haileader.exploratorysearch.asynctasks.SearchDataLMD;
+import vn.brine.haileader.exploratorysearch.asynctasks.SearchListKeywordLMD;
 import vn.brine.haileader.exploratorysearch.models.DividerItemDecoration;
 import vn.brine.haileader.exploratorysearch.models.Movie;
-import vn.brine.haileader.exploratorysearch.utils.Config;
 import vn.brine.haileader.exploratorysearch.utils.DataAssistant;
 import vn.brine.haileader.exploratorysearch.utils.QueryAssistant;
 
 public class HomeFragment extends Fragment
-        implements View.OnClickListener, SearchDataLMD.OnTaskCompleted{
+        implements View.OnClickListener, SearchDataLMD.OnTaskCompleted, SearchListKeywordLMD.OnTaskCompleted{
 
     public static final String TAG = HomeFragment.class.getSimpleName();
-    public static final int SEARCH_ACCURATE_DATA_LMD = 1;
-    public static final int SEARCH_EXPAND_DATA_LMD = 2;
+    public static final int SEARCH_ACCURATE = 1;
+    public static final int SEARCH_EXPAND = 2;
     public static final int SEARCH_TYPE_LMD = 3;
-    public static final int SEARCH_TEST = 4;
 
     private EditText mSearchText;
     private Button mSearchAllButton;
+    private LinearLayout mTopResultLinear;
+    private LinearLayout mRecommendLinear;
+    private LinearLayout mIntrodutionLinear;
     private RecyclerView mTopRecyclerView;
     private RecyclerView mRecommendRecyclerView;
 
@@ -77,14 +80,19 @@ public class HomeFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
         mSearchText = (EditText) view.findViewById(R.id.searchText);
         mSearchAllButton = (Button) view.findViewById(R.id.searchAll);
+        mTopResultLinear = (LinearLayout)view.findViewById(R.id.linear_top_result);
+        mRecommendLinear = (LinearLayout)view.findViewById(R.id.linear_recommend_result);
+        mIntrodutionLinear = (LinearLayout)view.findViewById(R.id.linear_tutorial);
         mTopRecyclerView = (RecyclerView)view.findViewById(R.id.top_result_recycler_view);
         mRecommendRecyclerView = (RecyclerView)view.findViewById(R.id.recommend_result_recycler_view);
 
-        mListKeyword = new ArrayList<String>();
-        mListMovieType = new ArrayList<String>();
+        showIntroduction();
+
+        mListKeyword = new ArrayList<>();
+        mListMovieType = new ArrayList<>();
         mListAllMovieType = getAllMovieType();
-        movieTopList = new ArrayList<Movie>();
-        movieRecommendList = new ArrayList<Movie>();
+        movieTopList = new ArrayList<>();
+        movieRecommendList = new ArrayList<>();
 
         mTopAdapter = new MovieAdapter(getContext(), movieTopList);
         mRecommendAdapter = new MovieAdapter(getContext(), movieRecommendList);
@@ -139,6 +147,7 @@ public class HomeFragment extends Fragment
                 String textSearch = mSearchText.getText().toString();
                 analyzeInputData(textSearch);
                 searchAll();
+                hideIntroduction();
                 break;
         }
     }
@@ -146,45 +155,17 @@ public class HomeFragment extends Fragment
     @Override
     public void onAsyncTaskCompletedLMD(ResultSet resultSet, int typeSearch) {
         if (resultSet == null) return;
+    }
 
-        switch (typeSearch) {
-            case SEARCH_ACCURATE_DATA_LMD:
-                while (resultSet.hasNext()) {
-                    QuerySolution binding = resultSet.nextSolution();
-                    Resource url = (Resource) binding.get("url");
-                    if (url.getURI().contains("freebase")) {
-                        showLog("searchAccurateKeyword", "Xu ly");
-                        if (!mListMovieType.isEmpty()) {
-                            for (String movieType : mListMovieType) {
-                                getInfoFromType(url.getURI(), movieType);
-                            }
-                        }
-                        updateDataTop(url.getURI());
-                        searchDataFreeBase(url.getURI());
-                    }
-                }
+    @Override
+    public void onAsyncTaskCompletedListLMD(List<ResultSet> resultSetList, int typeSearch) {
+        if(resultSetList == null) return;
+        switch (typeSearch){
+            case SEARCH_ACCURATE:
+                searchAccurate(resultSetList);
                 break;
-            case SEARCH_EXPAND_DATA_LMD:
-                while (resultSet.hasNext()) {
-                    QuerySolution binding = resultSet.nextSolution();
-                    Resource url = (Resource) binding.get("url");
-                    if (url.getURI().contains("freebase")) {
-                        showLog("SearchExpand", "Xu ly : " + url.getLocalName());
-                        searchDataFreeBase(url.getURI());
-                    }
-                    updateDataRecommend(url.getURI());
-                }
-                break;
-            case SEARCH_TYPE_LMD:
-                break;
-            case SEARCH_TEST:
-                while (resultSet.hasNext()) {
-                    QuerySolution binding = resultSet.nextSolution();
-                    Resource url = (Resource) binding.get("page");
-                    if (url.getURI().contains("dbpedia")) {
-                        showLog("URITEST", url.getURI());
-                    }
-                }
+            case SEARCH_EXPAND:
+                searchExpand(resultSetList);
                 break;
         }
     }
@@ -202,6 +183,18 @@ public class HomeFragment extends Fragment
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    private void showIntroduction(){
+        mTopResultLinear.setVisibility(View.GONE);
+        mRecommendLinear.setVisibility(View.GONE);
+        mIntrodutionLinear.setVisibility(View.VISIBLE);
+    }
+
+    private void hideIntroduction(){
+        mTopResultLinear.setVisibility(View.VISIBLE);
+        mRecommendLinear.setVisibility(View.VISIBLE);
+        mIntrodutionLinear.setVisibility(View.GONE);
     }
 
     private void analyzeInputData(String textSearch) {
@@ -246,21 +239,43 @@ public class HomeFragment extends Fragment
 
     private void searchAll() {
         if (mListKeyword.isEmpty()) return;
-        for (String keyword : mListKeyword) {
-            if (DataAssistant.isStopWord(keyword)) continue;
-            searchAccurate(keyword);
-            searchExpand(keyword);
+        movieTopList.clear();
+        movieRecommendList.clear();
+        new SearchListKeywordLMD(getContext(), this, SEARCH_ACCURATE).execute(mListKeyword);
+        new SearchListKeywordLMD(getContext(), this, SEARCH_EXPAND).execute(mListKeyword);
+    }
+
+    private void searchAccurate(List<ResultSet> resultSets){
+        for(ResultSet resultSet : resultSets){
+            while (resultSet.hasNext()) {
+                QuerySolution binding = resultSet.nextSolution();
+                Resource url = (Resource) binding.get("url");
+                if (url.getURI().contains("freebase")) {
+                    showLog("searchAccurateKeyword", "Xu ly");
+//                    if (!mListMovieType.isEmpty()) {
+//                        for (String movieType : mListMovieType) {
+//                            getInfoFromType(url.getURI(), movieType);
+//                        }
+//                    }
+                    updateDataTop(url.getURI());
+                    searchDataFreeBase(url.getURI());
+                }
+            }
         }
     }
 
-    private void searchAccurate(String keyword) {
-        String queryString = QueryAssistant.searchAccurateQuery(keyword);
-        new SearchDataLMD(getContext(), this, SEARCH_ACCURATE_DATA_LMD).execute(queryString);
-    }
-
-    private void searchExpand(String keyword) {
-        String queryString = QueryAssistant.searchExpandQuery(keyword);
-        new SearchDataLMD(getContext(), this, SEARCH_EXPAND_DATA_LMD).execute(queryString);
+    private void searchExpand(List<ResultSet> resultSets){
+        for(ResultSet resultSet : resultSets){
+            while (resultSet.hasNext()) {
+                QuerySolution binding = resultSet.nextSolution();
+                Resource url = (Resource) binding.get("url");
+                if (url.getURI().contains("freebase")) {
+                    showLog("SearchExpand", "Xu ly : " + url.getLocalName());
+                    searchDataFreeBase(url.getURI());
+                }
+                updateDataRecommend(url.getURI());
+            }
+        }
     }
 
     private void getInfoFromType(String uriKey, String movieType) {
@@ -272,13 +287,6 @@ public class HomeFragment extends Fragment
 
     private void searchDataFreeBase(String uri){
         showLog("SearchDataFreeBase", uri);
-    }
-
-    public void testSearch(View v){
-        String key = "http://data.linkedmdb.org/resource/film/3951";
-        String queryString = Config.PREFIX_LINKEDMDB +
-                "SELECT * WHERE{<"+key+"> owl:sameAs ?page }";
-        new SearchDataLMD(getContext(), this, SEARCH_TEST).execute(queryString);
     }
 
     private void updateDataTop(String uri){

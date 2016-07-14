@@ -8,5 +8,6 @@
     <color name="colorAccent">#C8E6C9</color>
 
     <!--Home Fragment-->
-    <color name="textLabel">#66BB6A</color>
+    <color name="backgroundTextLabel">#66BB6A</color>
+    <color name="titleText">#ffffff</color>
 </resources>

@@ -1,5 +1,7 @@
 package vn.brine.haileader.exploratorysearch.utils;
 
+import android.util.Log;
+
 /**
  * Created by HaiLeader on 7/12/2016.
  */
@@ -21,6 +23,7 @@ public class QueryAssistant {
                 "}. " +
                 "?s foaf:page ?url.?s rdfs:label ?label" +
                 "}";
+        Log.d("QUERYSTRING", queryString);
         return queryString;
     }
 
@@ -29,6 +32,7 @@ public class QueryAssistant {
                 "SELECT DISTINCT * WHERE " +
                 "{ ?s rdfs:label ?o . FILTER regex(?o, " + "\"" + keyword + "\"" + " ,'i'). " +
                 "?s foaf:page ?url} limit 16";
+        Log.d("QUERYSTRING", queryString);
         return queryString;
     }
 
@@ -38,6 +42,7 @@ public class QueryAssistant {
                 "{<" + uriKey + "> " + movieType + " ?s}" +
                 "UNION{?s " + movieType + "<" + uriKey + "> }. " +
                 "?s foaf:page ?url}";
+        Log.d("QUERYSTRING", queryString);
         return queryString;
     }
 }

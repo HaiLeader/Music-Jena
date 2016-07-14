@@ -6,4 +6,7 @@
 
     <!--Search result item row-->
     <dimen name="search_result_image_size">100dp</dimen>
+    <dimen name="title_text_label">20dp</dimen>
+    <dimen name="details_text">14dp</dimen>
+    <dimen name="text_detail_margin">10dp</dimen>
 </resources>

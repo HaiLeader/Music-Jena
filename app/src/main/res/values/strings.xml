@@ -23,5 +23,11 @@
     <string name="search_hint">Search...</string>
     <string name="top_result_label">TOP</string>
     <string name="recommend_result_label">RECOMMEND</string>
+    <string name="expolatory_search_label">Expolatory Search</string>
+    <string name="expolatory_search_details">The exploratory search is a new way to search the web, not to find what you are searching, but to find what you are not searching, and might be intersting for you ! It allows performing queries in an innovative way and helps you to navigate rich results. As a hub, it proposes redirections to others platforms to make you benefit from your discoveries</string>
+    <string name="recommendation_label">Get recommendations on your interests</string>
+    <string name="recommendation_details">Want a film recommendation related to actors you like? Want a film recommendation focus to genre you like? Interested by more complex and composite recommendations based on your deepest interests : a actor, a director and a film? Or maybe something simpler ? If you have a thirst for discovery and knowledge, System has answers for you</string>
+    <string name="understand_recommend_label">Understand a recommendation</string>
+    <string name="understand_details">System gives you recommendations, but also tools to understand why you have these recommendations, because we know that the more important in a recommendation is to know why you get it !</string>
 
 </resources>
