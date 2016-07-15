@@ -19,6 +19,22 @@
     <string name="title_settings">Setting</string>
     <string name="title_home">Home</string>
 
+    <string-array name="nav_drawer_items">
+        <item >Home</item>
+        <item >What\'s Hot</item>
+        <item >Favorites</item>
+        <item >Settings</item>
+    </string-array>
+
+    <array name="nav_drawer_icons">
+        <item>@drawable/ic_home</item>
+        <item>@drawable/ic_whats_hot</item>
+        <item>@drawable/ic_favorite</item>
+        <item>@drawable/ic_setting</item>
+    </array>
+
+    <string name="desc_list_item_icon">Item Icon</string>
+
     <!--Home Fragment-->
     <string name="search_hint">Search...</string>
     <string name="top_result_label">TOP</string>

@@ -1,6 +1,7 @@
 package vn.brine.haileader.exploratorysearch.fragments;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -13,9 +14,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import vn.brine.haileader.exploratorysearch.R;
 import vn.brine.haileader.exploratorysearch.adapters.NavigationDrawerAdapter;
@@ -26,12 +27,19 @@ public class FragmentDrawer extends Fragment {
     private static String TAG = FragmentDrawer.class.getSimpleName();
 
     private RecyclerView recyclerView;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private DrawerLayout mDrawerLayout;
     private NavigationDrawerAdapter adapter;
     private View containerView;
-    private static String[] titles = null;
+//    private static String[] titles = null;
     private FragmentDrawerListener drawerListener;
+
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
+    private String[] navMenuTitles;
+    private TypedArray navMenuIcons;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private ArrayList<NavDrawerItem> navDrawerItems;
+    private ListView mDrawerList;
+    private DrawerLayout mDrawerLayout;
 
     public FragmentDrawer() {}
 
@@ -39,24 +47,28 @@ public class FragmentDrawer extends Fragment {
         this.drawerListener = listener;
     }
 
-    public static List<NavDrawerItem> getData() {
-        List<NavDrawerItem> data = new ArrayList<>();
-
-        // preparing navigation drawer items
-        for (int i = 0; i < titles.length; i++) {
-            NavDrawerItem navItem = new NavDrawerItem();
-            navItem.setTitle(titles[i]);
-            data.add(navItem);
-        }
-        return data;
-    }
+//    public static List<NavDrawerItem> getData() {
+//        List<NavDrawerItem> data = new ArrayList<>();
+//
+//        // preparing navigation drawer items
+//        for (int i = 0; i < titles.length; i++) {
+//            NavDrawerItem navItem = new NavDrawerItem();
+//            navItem.setTitle(titles[i]);
+//            data.add(navItem);
+//        }
+//        return data;
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // drawer labels
-        titles = getActivity().getResources().getStringArray(R.array.nav_drawer_labels);
+//        titles = getActivity().getResources().getStringArray(R.array.nav_drawer_labels);
+
+//        mTitle = mDrawerTitle = getTitle();
+        navMenuTitles = getResources().getStringArray(R.array.nav_drawer_items);
+        navMenuIcons = getResources()
+                .obtainTypedArray(R.array.nav_drawer_icons);
     }
 
     @Override
@@ -64,9 +76,17 @@ public class FragmentDrawer extends Fragment {
                              Bundle savedInstanceState) {
         // Inflating view layout
         View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+
+        navDrawerItems = new ArrayList<>();
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], navMenuIcons.getResourceId(0, -1), false, "0"));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons.getResourceId(0, -1), false, "0"));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(0, -1), true, "22"));
+
+        navMenuIcons.recycle();
+        adapter = new NavigationDrawerAdapter(getContext(), navDrawerItems);
+
         recyclerView = (RecyclerView) layout.findViewById(R.id.drawerList);
 
-        adapter = new NavigationDrawerAdapter(getActivity(), getData());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
@@ -118,10 +138,10 @@ public class FragmentDrawer extends Fragment {
 
     }
 
-    public static interface ClickListener {
-        public void onClick(View view, int position);
+    public interface ClickListener {
+        void onClick(View view, int position);
 
-        public void onLongClick(View view, int position);
+        void onLongClick(View view, int position);
     }
 
     static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
@@ -165,8 +185,6 @@ public class FragmentDrawer extends Fragment {
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
         }
-
-
     }
 
     public interface FragmentDrawerListener {

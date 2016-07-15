@@ -7,6 +7,13 @@
     <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#C8E6C9</color>
 
+    <color name="list_item_title">#000000</color>
+    <color name="list_background">#ffffff</color>
+    <color name="list_background_pressed">#992416</color>
+    <color name="list_divider">#272727</color>
+    <color name="counter_text_bg">#64b62e</color>
+    <color name="counter_text_color">#e44d4d</color>
+
     <!--Home Fragment-->
     <color name="backgroundTextLabel">#66BB6A</color>
     <color name="titleText">#ffffff</color>

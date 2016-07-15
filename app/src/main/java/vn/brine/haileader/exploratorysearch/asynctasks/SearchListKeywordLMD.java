@@ -14,6 +14,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import vn.brine.haileader.exploratorysearch.fragments.HomeFragment;
 import vn.brine.haileader.exploratorysearch.utils.Config;
 import vn.brine.haileader.exploratorysearch.utils.DataAssistant;
 import vn.brine.haileader.exploratorysearch.utils.QueryAssistant;
@@ -55,7 +56,12 @@ public class SearchListKeywordLMD extends AsyncTask<List<String>, Void, List<Res
 
         for(String keyword : keywordList){
             if (DataAssistant.isStopWord(keyword)) continue;
-            String queryString = QueryAssistant.searchExpandQuery(keyword);
+            String queryString = "";
+            if(mTypeSearch == HomeFragment.SEARCH_ACCURATE){
+                queryString = QueryAssistant.searchAccurateQuery(keyword);
+            }else if(mTypeSearch == HomeFragment.SEARCH_EXPAND){
+                queryString = QueryAssistant.searchExpandQuery(keyword);
+            }
             Log.d(TAG, queryString);
             Query query = QueryFactory.create(queryString);
             QueryExecution queryExecution = QueryExecutionFactory.createServiceRequest(Config.LINKEDMDB_ENDPOINT, query);
